@@ -10,7 +10,6 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { playIcon, pauseIcon } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -108,7 +107,6 @@ type Props = {
   miningStatus: number,
   timeTillNextReward: number,
   totalEarnings: number,
-  getUpcomingRewards: Action,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -157,14 +155,6 @@ class Node extends Component<Props, State> {
         </CorneredContainer>
       </Wrapper>
     );
-  }
-
-  async componentDidMount() {
-    const { isConnected, miningStatus, getUpcomingRewards } = this.props;
-    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
-      await getUpcomingRewards();
-      this.getUpcomingRewardsInterval = setInterval(getUpcomingRewards, nodeConsts.TIME_BETWEEN_LAYERS);
-    }
   }
 
   componentWillUnmount(): * {

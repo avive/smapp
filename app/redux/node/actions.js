@@ -16,34 +16,16 @@ export const SET_NODE_IP: string = 'SET_NODE_IP';
 export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
 export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.checkNodeConnection();
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
-    return true;
-  } catch (err) {
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
-    return false;
-  }
+  dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
+  return true;
 };
 
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const status = await httpService.getMiningStatus();
-    dispatch({ type: SET_MINING_STATUS, payload: { status } });
-  } catch (error) {
-    console.error(error); // eslint-disable-line no-console
-  }
+  dispatch({ type: SET_MINING_STATUS, payload: { status: '1' } });
 };
 
-export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
-  dispatch: Dispatch
-): Dispatch => {
-  try {
-    await httpService.initMining({ logicalDrive, commitmentSize, coinbase: address });
-    dispatch({ type: INIT_MINING, payload: { address } });
-  } catch (err) {
-    throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
-  }
+export const initMining = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+  dispatch({ type: INIT_MINING, payload: { address } });
 };
 
 export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
@@ -68,12 +50,7 @@ export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getSt
 };
 
 export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.setNodeIpAddress({ nodeIpAddress });
-    dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
-  } catch (err) {
-    throw createError('Error setting node IP address', () => setNodeIpAddress({ nodeIpAddress }));
-  }
+  dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
 };
 
 export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
