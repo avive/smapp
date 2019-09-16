@@ -45,7 +45,6 @@ type Props = {
   initMining: Action,
   isConnected: boolean,
   history: RouterHistory,
-  miningStatus: number,
   location: { state?: { isOnlyNodeSetup: boolean } }
 };
 
@@ -139,16 +138,14 @@ class NodeSetup extends Component<Props, State> {
   };
 
   setupAndInitMining = async () => {
-    const { initMining, miningStatus, accounts, history } = this.props;
+    const { initMining, accounts, history } = this.props;
     const { drives, selectedCommitmentSize, selectedDriveIndex } = this.state;
     try {
-      if (miningStatus === nodeConsts.NOT_MINING) {
-        await initMining({
-          logicalDrive: drives[selectedDriveIndex].mountPoint,
-          commitmentSize: selectedCommitmentSize * 1073741824,
-          address: accounts[0].pk
-        });
-      }
+      await initMining({
+        logicalDrive: drives[selectedDriveIndex].mountPoint,
+        commitmentSize: selectedCommitmentSize * 1073741824,
+        address: accounts[0].pk
+      });
       history.push('/main/node', { showIntro: true });
     } catch (error) {
       this.setState(() => {
@@ -181,7 +178,6 @@ class NodeSetup extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
-  miningStatus: state.node.miningStatus,
   accounts: state.wallet.accounts
 });
 
