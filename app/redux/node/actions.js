@@ -33,7 +33,7 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
     return status;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
-    return 1;
+    return nodeConsts.NOT_MINING;
   }
 };
 

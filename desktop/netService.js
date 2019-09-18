@@ -1,5 +1,6 @@
 import path from 'path';
-import { ipcConsts, localTestnetMeta } from '../app/vars';
+import { ipcConsts } from '../app/vars';
+// import { ipcConsts, localTestnetMeta } from '../app/vars';
 
 const protoLoader = require('@grpc/proto-loader');
 
@@ -10,8 +11,8 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
 // const DEFAULT_URL = '192.168.30.233:9091';
-// const DEFAULT_URL = 'localhost:9091';
-const DEFAULT_URL = localTestnetMeta.isLocalTestnet ? localTestnetMeta.accounts[localTestnetMeta.selectedAccount].ip : 'localhost:9091';
+const DEFAULT_URL = 'localhost:9091';
+// const DEFAULT_URL = localTestnetMeta.isLocalTestnet ? localTestnetMeta.accounts[localTestnetMeta.selectedAccount].ip : 'localhost:9091';
 
 class NetService {
   constructor(url = DEFAULT_URL) {
