@@ -156,7 +156,7 @@ class AccountsOverview extends Component<Props, State> {
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>
-        {getAbbreviatedText(pk, 6)}
+        {getAbbreviatedText(pk)}
         <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
@@ -165,7 +165,7 @@ class AccountsOverview extends Component<Props, State> {
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
-    clipboard.writeText(accounts[currentAccountIndex].pk);
+    clipboard.writeText(`0x${accounts[currentAccountIndex].pk}`);
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };
