@@ -68,11 +68,12 @@ const RightSection = styled.div`
 `;
 
 type Props = {
+  displayName: string,
   accounts: Account[],
   currentAccountIndex: number,
-  // getBalance: Action,
+  getBalance: Action,
   setCurrentAccount: Action,
-  // isConnected: boolean,
+  isConnected: boolean,
   history: RouterHistory
 };
 
@@ -84,13 +85,15 @@ type State = {
 };
 
 class Wallet extends Component<Props, State> {
+  getBalanceInterval: IntervalID;
+
   render() {
-    const { accounts, currentAccountIndex, setCurrentAccount } = this.props;
+    const { displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
     const hasBackup = !!localStorageService.get('hasBackup');
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
+          <AccountsOverview walletName={displayName} accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
           {!hasBackup && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />
@@ -115,16 +118,23 @@ class Wallet extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    // const { isConnected, getBalance } = this.props;
-    // if (isConnected) {
-    //   try {
-    //     await getBalance();
-    //   } catch (error) {
-    //     this.setState(() => {
-    //       throw error;
-    //     });
-    //   }
-    // }
+    const { isConnected, getBalance } = this.props;
+    if (isConnected) {
+      try {
+        await getBalance();
+        this.getBalanceInterval = setInterval(async () => {
+          await getBalance();
+        }, 60000);
+      } catch (error) {
+        this.setState(() => {
+          throw error;
+        });
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this.getBalanceInterval && clearInterval(this.getBalanceInterval);
   }
 
   navigateToBackup = () => {
@@ -135,6 +145,7 @@ class Wallet extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
+  displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   currentAccountIndex: state.wallet.currentAccountIndex
 });

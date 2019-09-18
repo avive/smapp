@@ -99,6 +99,7 @@ const CopiedText = styled.div`
 `;
 
 type Props = {
+  walletName: string,
   accounts: Account[],
   currentAccountIndex: number,
   switchAccount: ({ index: number }) => void
@@ -116,14 +117,14 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { accounts, currentAccountIndex, switchAccount } = this.props;
+    const { walletName, accounts, currentAccountIndex, switchAccount } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
     }
     const { displayName, pk, balance } = accounts[currentAccountIndex];
     return (
-      <WrapperWith2SideBars width={300} height={480} header="WALLET">
+      <WrapperWith2SideBars width={300} height={480} header={walletName}>
         <AccountDetails>
           {accounts.length > 1 ? (
             <DropDown
@@ -153,7 +154,7 @@ class AccountsOverview extends Component<Props, State> {
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>
-        {getAbbreviatedText(pk, 6)}
+        {getAbbreviatedText(pk)}
         <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
@@ -162,7 +163,7 @@ class AccountsOverview extends Component<Props, State> {
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
-    clipboard.writeText(accounts[currentAccountIndex].pk);
+    clipboard.writeText(`0x${accounts[currentAccountIndex].pk}`);
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };

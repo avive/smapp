@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 
 const SideBar = styled.img`
   display: block;
-  width: 13px;
+  width: 16px;
   height: 100%;
 `;
 
@@ -23,12 +23,16 @@ const MainWrapperInner = styled.div`
   flex-direction: column;
   flex: 1;
   margin: 15px;
+  width: calc(100% - 56px);
 `;
 
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
   color: ${smColors.realBlack};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SubHeader = styled.div`
