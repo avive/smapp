@@ -358,7 +358,7 @@ class Contacts extends Component<Props, State> {
   };
 
   cancelCreateNewContact = () => {
-    this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: true });
+    this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: false });
   };
 
   navigateToSendCoins = ({ contact }: { contact: Contact }) => {
