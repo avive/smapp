@@ -239,7 +239,6 @@ class Main extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { isConnected, miningStatus } = this.props;
     const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
     if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
       getGenesisTime();
