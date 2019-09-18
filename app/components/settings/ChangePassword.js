@@ -108,7 +108,7 @@ class ChangePassword extends Component<Props, State> {
   startUpdatingPassword = () => this.setState({ isEditMode: true });
 
   clearFields = () => {
-    this.setState({ password: '', verifiedPassword: '', isEditMode: false, passwordError: '', verifyPasswordError: '' });
+    this.setState({ password: '', verifiedPassword: '', isEditMode: false, passwordError: '', verifyPasswordError: '', isLoaderVisible: false });
   };
 
   validate = () => {
