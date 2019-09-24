@@ -289,8 +289,8 @@ class Contacts extends Component<Props, State> {
   renderLastUsedContacts = () => {
     const { lastUsedContacts } = this.props;
     if (lastUsedContacts && lastUsedContacts.length) {
-      return lastUsedContacts.map((contact) => (
-        <SubHeaderBtnWrapper color={smColors.realBlack} onClick={() => this.navigateToSendCoins({ contact })}>
+      return lastUsedContacts.map((contact, index) => (
+        <SubHeaderBtnWrapper key={`${index}_${contact.address}`} color={smColors.realBlack} onClick={() => this.navigateToSendCoins({ contact })}>
           <SubHeaderBtnUpperPart color={smColors.black} hoverColor={smColors.realBlack}>
             <LastUsedNickname>{contact.nickname || 'UNKNOWN ADDRESS'}</LastUsedNickname>
             <LastUsedAddress>{getAbbreviatedText(contact.address)}</LastUsedAddress>
