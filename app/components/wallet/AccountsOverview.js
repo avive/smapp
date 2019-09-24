@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedText } from '/infra/utils';
-import { smColors, localTestnetMeta } from '/vars';
+import { smColors } from '/vars';
 import type { Account } from '/types';
 
 const AccountDetails = styled.div`
@@ -122,9 +122,7 @@ class AccountsOverview extends Component<Props, State> {
     if (!accounts || !accounts.length) {
       return null;
     }
-    // TODO: testnet account for local testnet purposes.
-    const account = localTestnetMeta.isLocalTestnet ? localTestnetMeta.accounts[localTestnetMeta.selectedAccount] : accounts[currentAccountIndex];
-    const { displayName, pk, balance } = account;
+    const { displayName, pk, balance } = accounts[currentAccountIndex];
     return (
       <WrapperWith2SideBars width={300} height={480} header={walletName}>
         <AccountDetails>
