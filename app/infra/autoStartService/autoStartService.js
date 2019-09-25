@@ -8,6 +8,8 @@ class AutoStartService {
     ipcRenderer.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST);
     return new Promise<string, Error>((resolve: Function) => {
       ipcRenderer.once(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event, res) => {
+        // eslint-disable-next-line no-console
+        console.warn('IS AUTO START ENABLED', res);
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE] });
         resolve(res);
       });
