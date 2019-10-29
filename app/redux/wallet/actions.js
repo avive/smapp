@@ -202,7 +202,7 @@ export const getSmcFromTap = (): Action => async (dispatch: Dispatch): Dispatch 
     const accountNonce = await httpService.getNonce({ address: tapAccount.pk });
     const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: tapAccount.sk });
     const id = await httpService.sendTx({ tx });
-    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, fee: price, note } }));
   } catch (error) {
     throw createError('Error sending transaction!', () => getSmcFromTap());
   }
@@ -219,7 +219,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
     const accountNonce = await httpService.getNonce({ address: account.pk });
     const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: account.sk });
     const id = await httpService.sendTx({ tx });
-    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, fee: price, note } }));
     return id;
   } catch (error) {
     throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
