@@ -167,9 +167,6 @@ class SendCoins extends Component<Props, State> {
     const { sendTransaction } = this.props;
     const { address, amount, fee, note } = this.state;
     try {
-      // eslint-disable-next-line no-console
-      console.warn('AMOUNT >>>>', smeshToShmkl(amount));
-      // const txId = await sendTransaction({ recipient: address, amount: smeshToShmkl(amount), price: fee, note });
       const txId = await sendTransaction({ recipient: address, amount: smeshToShmkl(amount), price: fee, note });
       this.setState({ mode: 3, txId });
     } catch (error) {

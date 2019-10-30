@@ -200,7 +200,7 @@ export const getSmcFromTap = (): Action => async (dispatch: Dispatch): Dispatch 
   try {
     const recipient = testnetAccount.pk;
     const accountNonce = await httpService.getNonce({ address: tapAccount.pk });
-    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: tapAccount.sk });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: tapAccount.sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, fee: price, note } }));
   } catch (error) {
@@ -217,7 +217,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
     // TODO: testnet account for local testnet purposes.
     const account = localTestnetMeta.isLocalTestnet ? localTestnetMeta.accounts[localTestnetMeta.selectedAccount] : accounts[currentAccountIndex];
     const accountNonce = await httpService.getNonce({ address: account.pk });
-    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: account.sk });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: account.sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, fee: price, note } }));
     return id;
