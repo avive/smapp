@@ -7,7 +7,7 @@ import { getUpcomingAwards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { playIcon, pauseIcon } from '/assets/images';
+import { playIcon, pauseIcon, fireworks } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Action } from '/types';
@@ -103,6 +103,16 @@ const Dots = styled(LeftText)`
   overflow: hidden;
 `;
 
+const Fireworks = styled.img`
+  position: absolute;
+  top: 50px;
+  max-width: 100%;
+  max-height: 100%;
+  cursor: inherit;
+`;
+
+const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
+
 type Props = {
   isConnected: boolean,
   miningStatus: number,
@@ -115,7 +125,8 @@ type Props = {
 
 type State = {
   showIntro: boolean,
-  isMiningPaused: boolean
+  isMiningPaused: boolean,
+  showFireworks: boolean
 };
 
 class Node extends Component<Props, State> {
@@ -126,17 +137,18 @@ class Node extends Component<Props, State> {
     const { location } = props;
     this.state = {
       showIntro: !!location?.state?.showIntro,
-      isMiningPaused: false
+      isMiningPaused: false,
+      showFireworks: !!location?.state?.showIntro
     };
   }
 
   render() {
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={650} height={480} header="SPACEMESH FULL NODE" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={650} height={480} header="SMESHER" style={{ marginRight: 10 }}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <CorneredContainer width={250} height={480} header="FULL NODE LOG">
+        <CorneredContainer width={250} height={480} header="SMESHER LOG">
           <LogInnerWrapper>
             <LogEntry>
               <LogText>12.09.19 - 13:00</LogText>
@@ -145,7 +157,7 @@ class Node extends Component<Props, State> {
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
               <LogText>12.09.19 - 13:10</LogText>
-              <AwardText>Network award: 2SMH</AwardText>
+              <AwardText>Network reward: 2SMH</AwardText>
             </LogEntry>
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
@@ -165,6 +177,10 @@ class Node extends Component<Props, State> {
       await getUpcomingAwards();
       this.getUpcomingAwardsInterval = setInterval(getUpcomingAwards, nodeConsts.TIME_BETWEEN_LAYERS);
     }
+    const showFireworksTimer = setTimeout(() => {
+      this.setState({ showFireworks: false });
+      clearTimeout(showFireworksTimer);
+    }, 1500);
   }
 
   componentWillUnmount(): * {
@@ -173,9 +189,9 @@ class Node extends Component<Props, State> {
 
   renderMainSection = () => {
     const { miningStatus } = this.props;
-    const { showIntro } = this.state;
+    const { showIntro, showFireworks } = this.state;
     if (showIntro) {
-      return this.renderIntro();
+      return showFireworks ? <Fireworks key="fireworks" src={fireworks} /> : this.renderIntro();
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return this.renderPreSetup();
     }
@@ -184,22 +200,24 @@ class Node extends Component<Props, State> {
 
   renderIntro = () => {
     return [
-      <BoldText key="1">Success! You are now a Spacemesh testnet member!</BoldText>,
-      <Text key="2">* You will receive a desktop notification about your mining awards</Text>,
-      <Text key="3">* You can close this app, Mining still happens in the background</Text>,
-      <BoldText key="4">Important:</BoldText>,
-      <Text key="5">* Leave your computer on 24/7 to mine</Text>,
-      <Text key="6">* Disable your computer from going to sleep</Text>,
+      <BoldText key="1">Success! You are now a Spacemesh Testnet member!</BoldText>,
+      <Text key="2">* You will get a desktop notification about your smeshing rewards in about 48 hours</Text>,
+      <Text key="3">* You can close this window and choose to keep smeshing the background</Text>,
+      <BoldText key="4">Important</BoldText>,
+      <Text key="5">* Leave your computer on 24/7 to smesh and to earn smeshing rewards</Text>,
+      <Text key="6">
+        * <Link onClick={this.navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={inlineLinkStyle} />
+      </Text>,
       <Text key="7">
-        * Important: configure your network to accept incoming app connections.
-        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+        * Configure your network to accept incoming app connections.
+        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={inlineLinkStyle} />
       </Text>,
       <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
         *&nbsp;
-        <Link onClick={this.navigateToMiningGuide} text="Learn more about Spacemesh Mining" style={{ fontSize: '16px', lineHeight: '20px' }} />
+        <Link onClick={this.navigateToMiningGuide} text="Learn more about smeshing" style={inlineLinkStyle} />
       </Text>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button onClick={() => this.setState({ showIntro: false })} text="GOT IT" width={175} />
       </Footer>
     ];
@@ -208,14 +226,15 @@ class Node extends Component<Props, State> {
   renderPreSetup = () => {
     const { history } = this.props;
     return [
-      <BoldText key="1">You are not mining yet.</BoldText>,
+      <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
-      <Text key="3">You can start earning SMH to your wallet as soon as you complete the setup</Text>,
+      <Text key="3">Setup smeshing to earn Smesh rewards</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">This setup uses 5 GB and takes just a few minutes to complete</Text>,
+      <Text key="6">{`Setup requires ${nodeConsts.COMMITMENT_SIZE} GB of free disk space`}</Text>,
+      <Text key="7">Once set up is complete, You should start earning Smesh rewards for smeshing in about 48 hours</Text>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button onClick={() => history.push('/main/node-setup', { isOnlyNodeSetup: true })} text="BEGIN SETUP" width={175} />
       </Footer>
     ];
@@ -226,23 +245,23 @@ class Node extends Component<Props, State> {
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" isConnected={isConnected}>
-        {isConnected ? 'Connected!' : 'Not connected!'}
+        {isConnected ? 'Your Smesher is online' : 'Not connected!'}
       </Status>,
       <TextWrapper key="1">
-        <LeftText>Upcoming award in</LeftText>
+        <LeftText>Upcoming reward in</LeftText>
         <Dots>....................................</Dots>
         <RightText>{Math.floor(timeTillNextAward / 1000)} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
-        <LeftText>Total Awards</LeftText>
+        <LeftText>Total Rewards</LeftText>
         <Dots>....................................</Dots>
         <GreenText>{totalEarnings} SMH</GreenText>
       </TextWrapper>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button
           onClick={this.pauseResumeMining}
-          text={isMiningPaused ? 'RESUME MINING' : 'PAUSE MINING'}
+          text={isMiningPaused ? 'RESUME SMESHING' : 'PAUSE SMESHING'}
           width={175}
           imgPosition="before"
           img={isMiningPaused ? playIcon : pauseIcon}
@@ -257,6 +276,8 @@ class Node extends Component<Props, State> {
   navigateToMiningGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 
   navigateToNetConfigGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/netconfig');
+
+  navigateToPreventComputerSleep = () => shell.openExternal('https://testnet.spacemesh.io/#/no_sleep');
 }
 
 const mapStateToProps = (state) => ({

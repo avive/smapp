@@ -108,11 +108,11 @@ class CreateWallet extends Component<Props, State> {
     return (
       <Wrapper>
         <StepsContainer
-          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
-          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + FULL NODE'}
+          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'COMMIT SPACE']}
+          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
           currentStep={0}
         />
-        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
+        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
           <SmallHorizontalPanel />
           {subMode === 1 && (
             <>
@@ -146,7 +146,7 @@ class CreateWallet extends Component<Props, State> {
     );
   }
 
-  renderSubHeader = (subMode: number, isWalletOnlySetup: boolean) => {
+  renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
       <span>
         Enter your password
@@ -158,13 +158,6 @@ class CreateWallet extends Component<Props, State> {
         For future reference, a restore file is now on your computer
         <br />
         <Link onClick={this.openWalletBackupDirectory} text="Browse file location" />
-        {!isWalletOnlySetup && (
-          <span>
-            Next, you&#39;re going to commit storage space from your hard
-            <br />
-            drive in order for it to be used while mining
-          </span>
-        )}
       </div>
     );
   };
