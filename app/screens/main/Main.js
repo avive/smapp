@@ -151,7 +151,7 @@ class Main extends Component<Props, State> {
                 <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
                   WALLET
                 </NavBarLink>
-                <CustomTooltip text="SEND / RECEIVE SMC" withIcon={false} isLinkTooltip />
+                <CustomTooltip text="SEND / RECEIVE SMH" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
                 <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
@@ -186,7 +186,7 @@ class Main extends Component<Props, State> {
                 height={35}
                 style={bntStyle}
               />
-              <CustomTooltip text="GET COINS" withIcon={false} />
+              <CustomTooltip text="GET SMESH" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
               <SecondaryButton
@@ -231,13 +231,6 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    const { isConnected, miningStatus, getMiningStatus } = this.props;
-    if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
-      getMiningStatus();
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
     if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
@@ -250,7 +243,7 @@ class Main extends Component<Props, State> {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
         title: 'Spacemesh',
-        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
+        notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
       });
     }

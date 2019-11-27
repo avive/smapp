@@ -10,6 +10,8 @@ class MenuBuilder {
   buildMenu() {
     if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') {
       this.addInspectElementMenu();
+    } else {
+      this.addInputAndSelectionMenu();
     }
 
     const template = this.buildMenuTemplate();
@@ -33,12 +35,36 @@ class MenuBuilder {
     });
   }
 
+  addInputAndSelectionMenu() {
+    const selectionMenu = Menu.buildFromTemplate([{ role: 'copy' }, { type: 'separator' }, { role: 'selectall' }]);
+
+    const inputMenu = Menu.buildFromTemplate([
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { type: 'separator' },
+      { role: 'selectall' }
+    ]);
+
+    this.mainWindow.webContents.on('context-menu', (e, props) => {
+      const { selectionText, isEditable } = props;
+      if (isEditable) {
+        inputMenu.popup(this.mainWindow);
+      } else if (selectionText && selectionText.trim() !== '') {
+        selectionMenu.popup(this.mainWindow);
+      }
+    });
+  }
+
   buildMenuTemplate() {
     const isMac = process.platform === 'darwin';
     return [
       isMac
         ? {
-            label: isMac ? app.getName() : '&File',
+            label: isMac ? app.name : '&File',
             submenu: [
               {
                 label: 'About',

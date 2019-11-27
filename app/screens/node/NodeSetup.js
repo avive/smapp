@@ -38,6 +38,17 @@ const DriveName = styled.span`
   color: ${smColors.darkerGreen};
 `;
 
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const Text = styled.div`
+  font-size: 14px;
+  line-height: 18px;
+  color: ${smColors.black};
+`;
+
 const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 
 type Props = {
@@ -66,8 +77,8 @@ class NodeSetup extends Component<Props, State> {
     super(props);
     const { location } = props;
     this.isOnlyNodeSetup = !!location?.state?.isOnlyNodeSetup;
-    this.header = this.isOnlyNodeSetup ? 'SETUP NODE' : 'SETUP WALLET + MINER';
-    this.steps = ['SELECT DRIVE', 'ALLOCATE SPACE'];
+    this.header = this.isOnlyNodeSetup ? 'SETUP SMESHER' : 'SETUP WALLET + SMESHER';
+    this.steps = ['SELECT DRIVE', 'COMMIT SPACE'];
     if (!this.isOnlyNodeSetup) {
       this.steps = ['PROTECT WALLET'].concat(this.steps);
     }
@@ -91,7 +102,7 @@ class NodeSetup extends Component<Props, State> {
           <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={bntStyle} />
           {this.renderSubMode()}
           <Footer>
-            <Link onClick={this.navigateToExplanation} text="SETUP GUIDE" />
+            <Link onClick={this.navigateToExplanation} text="LEARN MORE ABOUT SMESHING" />
             <Button
               onClick={this.nextAction}
               text="NEXT"
@@ -118,24 +129,32 @@ class NodeSetup extends Component<Props, State> {
           <SubHeader>
             --
             <br />
-            Select the hard drive you&#39;d like to use for mining
+            Select the hard drive you&#39;d like to use for smeshing
             <br />
-            You will need at least 160 GB free space to setup miner
+            {`You need to commit ${nodeConsts.COMMITMENT_SIZE} GB of free space on your drive`}
           </SubHeader>
-          {drives.length ? <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} /> : null}
+          {drives.length ? (
+            <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
+          ) : (
+            <EmptyState>
+              <Text>{`Insufficient disk space. You need a local hard drive with at least ${nodeConsts.COMMITMENT_SIZE}GB of free space to setup smeshing.`}</Text>
+              <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
+            </EmptyState>
+          )}
         </>
       );
     }
+    // TODO: for Testnet 0.1 purposes only showing one valid space commitment
     return (
       <>
         <SubHeader>
           --
           <br />
-          Allocate how much space on <DriveName>{drives[selectedDriveIndex].label}</DriveName> you would
+          Set how much space on <DriveName>{drives[selectedDriveIndex].label}</DriveName> you would
           <br />
-          like the mining node to use
+          like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
+        <CommitmentSelector freeSpace={Math.min(300, +drives[selectedDriveIndex].availableDiskSpace)} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
       </>
     );
   };
@@ -177,6 +196,8 @@ class NodeSetup extends Component<Props, State> {
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+
+  navigateToNodeSetupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup?id=step-2-full-node-amp-mining-setup');
 }
 
 const mapStateToProps = (state) => ({

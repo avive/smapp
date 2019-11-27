@@ -30,6 +30,7 @@ const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.orange};
+  margin-bottom: 10px;
 `;
 
 const Header = styled(Text)`
@@ -62,8 +63,9 @@ class QuitDialog extends Component<Props, State> {
       <Wrapper>
         <CorneredWrapper>
           <InnerWrapper>
-            <Header>Quit Spacemesh and stop the miner?</Header>
-            <Text>Quitting Spacemesh and stopping the miner may cause you to lose mining rewards.</Text>
+            <Header>Quitting the app stops smeshing may cause loss of smeshing rewards.</Header>
+            <Text>&bull; Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background</Text>
+            <Text>&bull; Click QUIT to close the app and stop smeshing</Text>
             <ButtonsWrapper>
               <Button onClick={() => this.setState({ isVisible: false })} text="CANCEL" isPrimary={false} />
               <Button onClick={this.handleQuit} text="QUIT" isPrimary={false} />
@@ -93,7 +95,10 @@ class QuitDialog extends Component<Props, State> {
     isMining ? this.setState({ isVisible: true }) : this.handleQuit();
   };
 
-  handleQuit = () => ipcRenderer.send(ipcConsts.QUIT_APP);
+  handleQuit = async () => {
+    ipcRenderer.sendSync(ipcConsts.QUIT_NODE);
+    ipcRenderer.send(ipcConsts.QUIT_APP);
+  };
 
   handleKeepInBackground = () => {
     this.setState({ isVisible: false });
@@ -101,7 +106,7 @@ class QuitDialog extends Component<Props, State> {
     const timer = setTimeout(() => {
       notificationsService.notify({
         title: 'Spacemesh',
-        notification: 'Miner is running in the background.'
+        notification: 'Smesher is running in the background.'
       });
       clearTimeout(timer);
     }, 2500);

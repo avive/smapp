@@ -72,7 +72,7 @@ class TransactionsMeta extends PureComponent<Props> {
 
     return (
       <>
-        <BoldText>traffic</BoldText>
+        <BoldText>activity</BoldText>
         <BoldText>--</BoldText>
         <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${totalFilteredCoins}`}</Text>
         {coinsMeta.map((coinMeta) => (
@@ -89,7 +89,7 @@ class TransactionsMeta extends PureComponent<Props> {
           <TextRow key={totalMeta.title}>
             <Text>{totalMeta.title}</Text>
             <Dots>...................</Dots>
-            <Text>{`${totalMeta.coins} SMC`}</Text>
+            <Text>{`${totalMeta.coins} SMH`}</Text>
           </TextRow>
         ))}
       </>

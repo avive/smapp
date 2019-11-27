@@ -13,6 +13,8 @@ import { autoStartService } from '/infra/autoStartService';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
+import { localStorageService } from '/infra/storageService';
+import { version } from '../../../package.json';
 
 const Wrapper = styled.div`
   display: flex;
@@ -76,6 +78,8 @@ class Settings extends Component<Props, State> {
 
   myRef3: any;
 
+  lastBackupTime: ?Date;
+
   constructor(props) {
     super(props);
     const { displayName, accounts, nodeIpAddress } = props;
@@ -93,9 +97,10 @@ class Settings extends Component<Props, State> {
     this.myRef1 = React.createRef();
     this.myRef2 = React.createRef();
     this.myRef3 = React.createRef();
+    const savedLastBackupTime = localStorageService.get('lastBackupTime');
+    this.lastBackupTime = savedLastBackupTime ? new Date(savedLastBackupTime) : null;
   }
 
-  // TODO: add last backup time
   render() {
     const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
     const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
@@ -122,7 +127,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
               <SettingRow
-                upperPartLeft="Last Backup at 08.14.19"
+                upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
                 rowName="Wallet Backup"
@@ -168,6 +173,7 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
                 rowName="Create a new wallet"
               />
+              <SettingRow upperPartLeft={version} upperPartRight={<Link onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />} rowName="Spacemesh Wallet Version" />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
@@ -209,7 +215,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                upperPartRight={<Link onClick={setNodeIpAddress} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !isConnected} />}
+                upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !isConnected} />}
                 rowName="Change Node IP Address"
               />
             </SettingsSection>

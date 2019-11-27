@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Tx } from '/types';
 
@@ -65,7 +65,7 @@ class Transaction extends PureComponent<Props> {
 
   render() {
     const {
-      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname },
+      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname },
       isSentDisplayed,
       isReceivedDisplayed,
       isPendingDisplayed,
@@ -75,18 +75,17 @@ class Transaction extends PureComponent<Props> {
       return null;
     }
     const color = this.getColor({ isSent, isPending, isRejected });
-    const txId = '1723d...7293'; // TODO change to real tx id
     return (
       <Wrapper>
         <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
         <MainWrapper>
           <Section>
             <NickName>{isSavedContact ? nickname : getAbbreviatedText(address)}</NickName>
-            <Text>{txId}</Text>
+            <Text>{getAbbreviatedText(id)}</Text>
           </Section>
           <Section>
             <Text>{getDateText(date)}</Text>
-            <Amount color={color}>{amount}</Amount>
+            <Amount color={color}>{parseFloat(shmklToSmesh(amount).toFixed(4))}</Amount>
           </Section>
         </MainWrapper>
       </Wrapper>

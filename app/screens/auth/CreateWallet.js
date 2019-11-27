@@ -9,6 +9,7 @@ import { fileSystemService } from '/infra/fileSystemService';
 import { chevronRightBlack, chevronLeftWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+import { nodeConsts } from '/vars';
 
 const Wrapper = styled.div`
   display: flex;
@@ -67,6 +68,7 @@ const BottomPart = styled.div`
 
 type Props = {
   generateEncryptionKey: Action,
+  miningStatus: number,
   saveNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
@@ -92,7 +94,7 @@ class CreateWallet extends Component<Props, State> {
   };
 
   render() {
-    const { history, location } = this.props;
+    const { history, location, miningStatus } = this.props;
     const { isLoaderVisible, subMode, password, verifiedPassword, passwordError, verifyPasswordError } = this.state;
     if (isLoaderVisible) {
       return (
@@ -102,15 +104,15 @@ class CreateWallet extends Component<Props, State> {
       );
     }
     const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
-    const isWalletOnlySetup = !!location?.state?.withoutNode;
+    const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
     return (
       <Wrapper>
         <StepsContainer
-          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
-          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + MINER'}
+          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'COMMIT SPACE']}
+          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
           currentStep={0}
         />
-        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
+        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
           <SmallHorizontalPanel />
           {subMode === 1 && (
             <>
@@ -144,7 +146,7 @@ class CreateWallet extends Component<Props, State> {
     );
   }
 
-  renderSubHeader = (subMode: number, isWalletOnlySetup: boolean) => {
+  renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
       <span>
         Enter your password
@@ -156,13 +158,6 @@ class CreateWallet extends Component<Props, State> {
         For future reference, a restore file is now on your computer
         <br />
         <Link onClick={this.openWalletBackupDirectory} text="Browse file location" />
-        {!isWalletOnlySetup && (
-          <span>
-            Next, you&#39;re going to commit storage space from your hard
-            <br />
-            drive in order for it to be used while mining
-          </span>
-        )}
       </div>
     );
   };
@@ -193,9 +188,9 @@ class CreateWallet extends Component<Props, State> {
   };
 
   nextAction = () => {
-    const { history, location } = this.props;
+    const { history, location, miningStatus } = this.props;
     const { subMode } = this.state;
-    const isWalletOnlySetup = !!location?.state?.withoutNode;
+    const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
     if (subMode === 1 && this.validate()) {
       this.createWallet();
     } else if (subMode === 2) {
@@ -233,13 +228,17 @@ class CreateWallet extends Component<Props, State> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  miningStatus: state.node.miningStatus
+});
+
 const mapDispatchToProps = {
   generateEncryptionKey,
   saveNewWallet
 };
 
 CreateWallet = connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(CreateWallet);
 

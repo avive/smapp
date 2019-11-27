@@ -58,8 +58,8 @@ export const generateEncryptionKey = ({ password }: { password: string }): Actio
 export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { fileKey, walletFiles } = getState().wallet;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
-  const walletNumber = localStorageService.get('walletNumber');
-  const accountNumber = localStorageService.get('accountNumber');
+  const walletNumber = localStorageService.get('walletNumber') || 0;
+  const accountNumber = localStorageService.get('accountNumber') || 0;
   const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
   const { publicKey, secretKey } = cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
   const meta = {
@@ -179,30 +179,27 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
   }
 };
 
-const generateTxId = () => {
-  const idLength = 32;
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let txId = '';
-  for (let i = 0; i < idLength; i += 1) {
-    txId += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return txId;
-};
-
 export const sendTransaction = ({ recipient, amount, price, note }: { recipient: string, amount: number, price: number, note: string }): Action => async (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  const id = generateTxId();
-  dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
-  return id;
+  try {
+    const { accounts, currentAccountIndex } = getState().wallet;
+    const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
+    const id = await httpService.sendTx({ tx });
+    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, fee: price, note } }));
+    return id;
+  } catch (error) {
+    throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
+  }
 };
 
 export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
-    const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
-    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: [tx, ...transactions[index].data] } };
+    const index: number = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
+    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: [{ ...tx }, ...transactions[index].data] } };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {
@@ -227,7 +224,7 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
 ): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
-    const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
+    const index: number = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
     let transactionsArray: TxList = [];
     if (updateAll) {
       transactionsArray = transactions[index].data.map((transaction: Tx) => (transaction.address === tx.address ? { ...transaction, ...tx } : transaction));
@@ -293,10 +290,11 @@ export const backupWallet = (): Action => async (dispatch: Dispatch, getState: G
     const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
     const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
     const now = new Date();
-    const fileName = `Wallet_Backup_${now.toISOString()}.json`;
+    const timestamp = now.toISOString().replace(/:/, '-');
+    const fileName = `Wallet_Backup_${timestamp}.json`;
     await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
     localStorageService.set('hasBackup', true);
-    localStorageService.set('lastBackupTime', now.toISOString());
+    localStorageService.set('lastBackupTime', timestamp);
   } catch (error) {
     throw createError('Error creating wallet backup!', backupWallet);
   }

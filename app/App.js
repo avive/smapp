@@ -4,13 +4,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
-import { checkNodeConnection } from '/redux/node/actions';
+import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
+
+const HEALTH_CHECK_INTERVAL = 360000;
 
 const store: Store = configureStore();
 
@@ -64,7 +66,14 @@ class App extends React.Component<Props, State> {
     this.clearTimers();
     const isConnected = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
-      await this.localNodeFlow();
+      try {
+        await this.attemptToStartFullNode();
+        this.healthCheckFlow();
+      } catch {
+        this.setState({
+          error: new Error('Failed to start Spacemesh Node.')
+        });
+      }
     } else {
       this.healthCheckFlow();
     }
@@ -81,28 +90,18 @@ class App extends React.Component<Props, State> {
     this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
   };
 
-  localNodeFlow = async () => {
-    try {
-      await this.startLocalNode();
-      this.healthCheckFlow();
-    } catch {
-      this.setState({
-        error: new Error('Failed to start Spacemesh Node.')
-      });
-    }
-  };
-
-  startLocalNode = () => {
+  attemptToStartFullNode = () => {
     const intervalTime = 5000; // ms
     let attemptsRemaining = 5;
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       this.startNodeInterval = setInterval(async () => {
         if (!attemptsRemaining) {
+          clearInterval(this.startNodeInterval);
           reject();
         } else {
-          const isConnectedProps = store.getState().node.isConnected;
+          const isConnectedToNode = store.getState().node.isConnected;
           attemptsRemaining -= 1;
-          if (!isConnectedProps) {
+          if (!isConnectedToNode) {
             try {
               await nodeService.startNode();
             } catch {
@@ -122,12 +121,11 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  healthCheckFlow = () => {
-    const healthCheckIntervalTime = 60000;
-    store.dispatch(checkNodeConnection());
-    this.healthCheckInterval = setInterval(() => {
-      store.dispatch(checkNodeConnection());
-    }, healthCheckIntervalTime);
+  healthCheckFlow = async () => {
+    await store.dispatch(getMiningStatus());
+    this.healthCheckInterval = setInterval(async () => {
+      await store.dispatch(checkNodeConnection());
+    }, HEALTH_CHECK_INTERVAL);
   };
 }
 
